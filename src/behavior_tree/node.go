@@ -23,13 +23,17 @@
 
 package behavior_tree
 
+import (
+	"math/rand"
+)
+
 /*
  * BevRunningStatus
  */
 const (
-	k_BRS_ERROR_Transition = -1
-	k_BRS_Executing        = iota
-	k_BRS_Finish
+	StateTransition = -1
+	StateExecuting  = iota
+	StateFinish
 )
 
 /*
@@ -37,9 +41,9 @@ const (
  */
 const (
 	_ = iota
-	k_TNS_Ready
-	k_TNS_Running
-	k_TNS_Finish
+	NodeReady
+	NodeRunning
+	NodeFinish
 )
 
 /*
@@ -58,60 +62,60 @@ type E_TerminalNodeStaus int
  *
  */
 type BevNode struct {
-	mo_NodePrecondition BevNodePrecondition
-	mo_ParentNode       *BevNode
-	mo_ActiveNode       *BevNode
-	mo_LastActiveNode   *BevNode
-	mul_ChildNodeCount  int
-	mz_DebugName        string
-	mao_ChildNodeList   [k_BLimited_MaxChildNodeCnt]*BevNode
+	nodePrecondition BevNodePrecondition
+	parentNode       *BevNode // ? interface{}
+	activeNode       *BevNode
+	lastActiveNode   *BevNode
+	childNodeCount   int
+	debugName        string
+	childNodeList    [k_BLimited_MaxChildNodeCnt]*BevNode
 }
 
-func NewBevNode(_o_ParentNode *BevNode, _o_NodeScript BevNodePrecondition) *BevNode {
-	return &BevNode{mo_NodePrecondition: _o_NodeScript, mo_ParentNode: _o_ParentNode}
+func NewBevNode(parentNode *BevNode, _o_NodeScript BevNodePrecondition) *BevNode {
+	return &BevNode{nodePrecondition: _o_NodeScript, parentNode: parentNode}
 }
 
-func (node *BevNode) AddChildNode(_o_ChildNode *BevNode) *BevNode {
-	if node.mul_ChildNodeCount == k_BLimited_MaxChildNodeCnt {
+func (node *BevNode) AddChildNode(childNode *BevNode) *BevNode {
+	if node.childNodeCount == k_BLimited_MaxChildNodeCnt {
 		return node
 	}
 
-	node.mao_ChildNodeList[node.mul_ChildNodeCount] = _o_ChildNode
-	node.mul_ChildNodeCount += 1
+	node.childNodeList[node.childNodeCount] = childNode
+	node.childNodeCount += 1
 	return node
 }
 
-func (node *BevNode) SetNodePrecondition(_o_NodePrecondition BevNodePrecondition) *BevNode {
-	if node.mo_NodePrecondition != _o_NodePrecondition {
-		node.mo_NodePrecondition = _o_NodePrecondition
+func (node *BevNode) SetNodePrecondition(nodePrecondition BevNodePrecondition) *BevNode {
+	if node.nodePrecondition != nodePrecondition {
+		node.nodePrecondition = nodePrecondition
 	}
 	return node
 }
 
 func (node *BevNode) SetDebugName(_debugName string) *BevNode {
-	node.mz_DebugName = _debugName
+	node.debugName = _debugName
 	return node
 }
 
 func (node *BevNode) GetLastActiveNode() *BevNode {
-	return node.mo_LastActiveNode
+	return node.lastActiveNode
 }
 
-func (node *BevNode) SetActiveNode(_o_Node *BevNode) {
-	node.mo_LastActiveNode = node.mo_ActiveNode
-	node.mo_ActiveNode = _o_Node
+func (node *BevNode) setActiveNode(activeNode *BevNode) {
+	node.lastActiveNode = node.activeNode
+	node.activeNode = activeNode
 
-	if node.mo_ParentNode != nil {
-		node.mo_ParentNode.SetActiveNode(_o_Node)
+	if node.parentNode != nil {
+		node.parentNode.setActiveNode(activeNode)
 	}
 }
 
 func (node *BevNode) GetDebugName() string {
-	return node.mz_DebugName
+	return node.debugName
 }
 
 func (node *BevNode) Evaluate(input interface{}) bool {
-	return (node.mo_NodePrecondition == nil || node.mo_NodePrecondition.ExternalCondition(input)) && node.doEvaluate(input)
+	return (node.nodePrecondition == nil || node.nodePrecondition.ExternalCondition(input)) && node.doEvaluate(input)
 }
 
 func (node *BevNode) Transition(input interface{}) {
@@ -130,15 +134,15 @@ func (node *BevNode) doTransition(input interface{}) {
 }
 
 func (node *BevNode) doTick(input interface{}, output interface{}) BevRunningStatus {
-	return k_BRS_Finish
+	return StateFinish
 }
 
-func (node *BevNode) setParentNode(_o_ParentNode *BevNode) {
-	node.mo_ParentNode = _o_ParentNode
+func (node *BevNode) setParentNode(parentNode *BevNode) {
+	node.parentNode = parentNode
 }
 
-func (node *BevNode) checkIndex(_ui_Index int) bool {
-	return _ui_Index >= 0 && _ui_Index < node.mul_ChildNodeCount
+func (node *BevNode) checkIndex(index int) bool {
+	return index >= 0 && index < node.childNodeCount
 }
 
 /*
@@ -146,24 +150,54 @@ func (node *BevNode) checkIndex(_ui_Index int) bool {
  */
 type BevNodePrioritySelector struct {
 	*BevNode
-	mui_CurrentSelectIndex int
-	mui_LastSelectIndex    int
+	currentSelectIndex int
+	lastSelectIndex    int
 }
 
-func NewBevNodePrioritySelector(_o_ParentNode *BevNode, _o_NodePrecondition BevNodePrecondition) *BevNodePrioritySelector {
-	return &BevNodePrioritySelector{NewBevNode(_o_ParentNode, _o_NodePrecondition), k_BLimited_InvalidChildNodeIndex, k_BLimited_InvalidChildNodeIndex}
+func NewBevNodePrioritySelector(parentNode *BevNode, nodePrecondition BevNodePrecondition) *BevNodePrioritySelector {
+	return &BevNodePrioritySelector{NewBevNode(parentNode, nodePrecondition), k_BLimited_InvalidChildNodeIndex, k_BLimited_InvalidChildNodeIndex}
 }
 
 func (node *BevNodePrioritySelector) doEvaluate(input interface{}) bool {
-	return true
+	node.currentSelectIndex = k_BLimited_InvalidChildNodeIndex
+	for i := 0; i < node.childNodeCount; i++ {
+		if node.childNodeList[i].Evaluate(input) {
+			node.currentSelectIndex = i
+			return true
+		}
+	}
+	return false
 }
 
 func (node *BevNodePrioritySelector) doTransition(input interface{}) {
-
+	if node.checkIndex(node.lastSelectIndex) {
+		node.childNodeList[node.lastSelectIndex].doTransition(input)
+	}
+	node.lastSelectIndex = k_BLimited_InvalidChildNodeIndex
 }
 
 func (node *BevNodePrioritySelector) doTick(input interface{}, output interface{}) BevRunningStatus {
-	return k_BRS_Finish
+	var isFinish BevRunningStatus = StateFinish
+
+	if node.checkIndex(node.currentSelectIndex) {
+		if node.lastSelectIndex != node.currentSelectIndex {
+			if node.checkIndex(node.lastSelectIndex) {
+				lastNode := node.childNodeList[node.lastSelectIndex]
+				lastNode.Transition(input)
+			}
+			node.lastSelectIndex = node.currentSelectIndex
+		}
+	}
+
+	if node.checkIndex(node.lastSelectIndex) {
+		curNode := node.childNodeList[node.lastSelectIndex]
+		isFinish = curNode.Tick(input, output)
+		if isFinish == StateFinish {
+			node.lastSelectIndex = k_BLimited_InvalidChildNodeIndex
+		}
+	}
+
+	return isFinish
 }
 
 /*
@@ -173,12 +207,40 @@ type BevNodeNonePrioritySelector struct {
 	*BevNodePrioritySelector
 }
 
-func NewBevNodeNonePrioritySelector(_o_ParentNode *BevNode, _o_NodePrecondition BevNodePrecondition) *BevNodeNonePrioritySelector {
-	return &BevNodeNonePrioritySelector{NewBevNodePrioritySelector(_o_ParentNode, _o_NodePrecondition)}
+func NewBevNodeNonePrioritySelector(parentNode *BevNode, nodePrecondition BevNodePrecondition) *BevNodeNonePrioritySelector {
+	return &BevNodeNonePrioritySelector{NewBevNodePrioritySelector(parentNode, nodePrecondition)}
 }
 
 func (node *BevNodeNonePrioritySelector) doEvaluate(input interface{}) bool {
-	return true
+	if node.checkIndex(node.currentSelectIndex) {
+		curNode := node.childNodeList[node.currentSelectIndex]
+		if curNode.Evaluate(input) {
+			return true
+		}
+	}
+	return node.Evaluate(input)
+}
+
+/*
+ *
+ */
+type BevNodeRandomSelector struct {
+	*BevNodePrioritySelector
+}
+
+func NewBevNodeRandomSelector(parentNode *BevNode, nodePrecondition BevNodePrecondition) *BevNodeRandomSelector {
+	return &BevNodeRandomSelector{NewBevNodePrioritySelector(parentNode, nodePrecondition)}
+}
+
+func (node *BevNodeRandomSelector) doEvaluate(input interface{}) bool {
+	if node.childNodeCount >= 1 {
+		randomIndex := rand.Intn(node.childNodeCount)
+		if node.childNodeList[randomIndex].Evaluate(input) == true {
+			node.currentSelectIndex = randomIndex
+			return true
+		}
+	}
+	return false
 }
 
 /*
@@ -186,47 +248,90 @@ func (node *BevNodeNonePrioritySelector) doEvaluate(input interface{}) bool {
  */
 type BevNodeSequence struct {
 	*BevNode
-	mui_CurrentNodeIndex int
+	currentSelectIndex int
 }
 
-func NewBevNodeSequence(_o_ParentNode *BevNode, _o_NodePrecondition BevNodePrecondition) *BevNodeSequence {
-	return &BevNodeSequence{NewBevNode(_o_ParentNode, _o_NodePrecondition), k_BLimited_InvalidChildNodeIndex}
+func NewBevNodeSequence(parentNode *BevNode, nodePrecondition BevNodePrecondition) *BevNodeSequence {
+	return &BevNodeSequence{NewBevNode(parentNode, nodePrecondition), k_BLimited_InvalidChildNodeIndex}
 }
 
 func (node *BevNodeSequence) doEvaluate(input interface{}) bool {
-	return true
+	Index := node.currentSelectIndex
+	if !node.checkIndex(node.currentSelectIndex) && node.checkIndex(0) {
+		Index = 0
+	}
+	if node.checkIndex(Index) {
+		return node.childNodeList[Index].Evaluate(input)
+	}
+	return false
 }
 
 func (node *BevNodeSequence) doTransition(input interface{}) {
-
+	if node.checkIndex(node.currentSelectIndex) {
+		node.childNodeList[node.currentSelectIndex].Transition(input)
+	}
+	node.currentSelectIndex = k_BLimited_InvalidChildNodeIndex
 }
 
 func (node *BevNodeSequence) doTick(input interface{}, output interface{}) BevRunningStatus {
-	return k_BRS_Finish
+	var bIsFinish BevRunningStatus = StateFinish
+
+	if !node.checkIndex(node.currentSelectIndex) && node.checkIndex(0) {
+		node.currentSelectIndex = 0
+	}
+
+	if node.checkIndex(node.currentSelectIndex) {
+		bIsFinish = node.childNodeList[node.currentSelectIndex].Tick(input, output)
+		if bIsFinish == StateFinish {
+			node.currentSelectIndex += 1
+			if node.currentSelectIndex >= node.childNodeCount {
+				bIsFinish = StateFinish
+			} else {
+				bIsFinish = StateExecuting
+			}
+		}
+	}
+
+	if bIsFinish < 0 {
+		node.currentSelectIndex = k_BLimited_InvalidChildNodeIndex
+	}
+
+	return bIsFinish
 }
 
 /*
  *
  */
 type BevNodeParallel struct {
-	node                *BevNode
-	mab_ChildNodeStatus [k_BLimited_MaxChildNodeCnt]BevRunningStatus
+	*BevNode
 }
 
-func NewBevNodeParallel(_o_ParentNode *BevNode, _o_NodePrecondition BevNodePrecondition) *BevNodeParallel {
-	return &BevNodeParallel{node: NewBevNode(_o_ParentNode, _o_NodePrecondition)}
+func NewBevNodeParallel(parentNode *BevNode, nodePrecondition BevNodePrecondition) *BevNodeParallel {
+	return &BevNodeParallel{NewBevNode(parentNode, nodePrecondition)}
 }
 
 func (node *BevNodeParallel) doEvaluate(input interface{}) bool {
+	for i := 0; i < node.childNodeCount; i++ {
+		if !node.childNodeList[i].Evaluate(input) {
+			return false
+		}
+	}
 	return true
 }
 
 func (node *BevNodeParallel) doTransition(input interface{}) {
-
+	for i := 0; i < node.childNodeCount; i++ {
+		node.childNodeList[i].Transition(input)
+	}
 }
 
 func (node *BevNodeParallel) doTick(input interface{}, output interface{}) BevRunningStatus {
-	return k_BRS_Finish
+	for i := 0; i < node.childNodeCount; i++ {
+		if node.childNodeList[i].Tick(input, output) != StateFinish {
+			return StateExecuting
+		}
+	}
+	return StateFinish
 }
 
 /*
@@ -234,24 +339,42 @@ func (node *BevNodeParallel) doTick(input interface{}, output interface{}) BevRu
  */
 type BevNodeLoop struct {
 	*BevNode
-	mi_LoopCount    int
-	mi_CurrentCount int
+	loopCount    int
+	currentCount int
 }
 
-func NewBevNodeLoop(_o_ParentNode *BevNode, _o_NodePrecondition BevNodePrecondition, _i_LoopCnt int) *BevNodeLoop {
-	return &BevNodeLoop{NewBevNode(_o_ParentNode, _o_NodePrecondition), _i_LoopCnt, 0}
+func NewBevNodeLoop(parentNode *BevNode, nodePrecondition BevNodePrecondition, totalLoopCount int) *BevNodeLoop {
+	return &BevNodeLoop{NewBevNode(parentNode, nodePrecondition), totalLoopCount, 0}
 }
 
 func (node *BevNodeLoop) doEvaluate(input interface{}) bool {
-	return true
+	checkLoop := node.loopCount != kInfiniteLoop && node.currentCount > node.loopCount
+
+	if !checkLoop {
+		return false
+	} else if node.checkIndex(0) {
+		return node.childNodeList[0].Evaluate(input)
+	} else {
+		return false
+	}
 }
 
 func (node *BevNodeLoop) doTransition(input interface{}) {
-
+	if node.checkIndex(0) {
+		node.childNodeList[0].Transition(input)
+	}
 }
 
 func (node *BevNodeLoop) doTick(input interface{}, output interface{}) BevRunningStatus {
-	return k_BRS_Finish
+	if node.checkIndex(0) && node.childNodeList[0].Tick(input, output) == StateFinish {
+		node.currentCount = node.currentCount + 1
+	}
+
+	if node.loopCount != kInfiniteLoop && node.currentCount > node.loopCount {
+		return StateFinish
+	} else {
+		return StateExecuting
+	}
 }
 
 /*
@@ -259,30 +382,75 @@ func (node *BevNodeLoop) doTick(input interface{}, output interface{}) BevRunnin
  */
 type BevNodeTerminal struct {
 	*BevNode
-	me_Status   E_TerminalNodeStaus
-	mb_NeedExit bool
+	nodeStatus E_TerminalNodeStaus
+	needExit   bool
 }
 
-func NewBevNodeTerminal(_o_ParentNode *BevNode, _o_NodePrecondition BevNodePrecondition) *BevNodeTerminal {
-	return &BevNodeTerminal{NewBevNode(_o_ParentNode, _o_NodePrecondition), k_TNS_Ready, false}
+func NewBevNodeTerminal(parentNode *BevNode, nodePrecondition BevNodePrecondition) *BevNodeTerminal {
+	return &BevNodeTerminal{NewBevNode(parentNode, nodePrecondition), NodeReady, false}
 }
 
 func (node *BevNodeTerminal) doTransition(input interface{}) {
+	if node.needExit {
+		node.doExit(input, StateTransition)
+	}
 
+	node.setActiveNode(nil)
+	node.nodeStatus = NodeReady
+	node.needExit = false
 }
 
 func (node *BevNodeTerminal) doTick(input interface{}, output interface{}) BevRunningStatus {
-	return k_BRS_Finish
+	var bIsFinish BevRunningStatus = StateFinish
+
+	if node.nodeStatus == NodeReady {
+		node.Enter(input)
+		node.needExit = true
+		node.nodeStatus = NodeRunning
+		// node.setActiveNode(node)
+	}
+
+	if node.nodeStatus == NodeRunning {
+		bIsFinish = node.Execute(input, output)
+		// node.setActiveNode(node)
+		if bIsFinish == StateFinish || bIsFinish < 0 {
+			node.nodeStatus = NodeFinish
+		}
+	}
+
+	if node.nodeStatus == NodeFinish {
+		if node.needExit {
+			node.Exit(input, bIsFinish)
+		}
+
+		node.nodeStatus = NodeReady
+		node.needExit = false
+		node.setActiveNode(nil)
+	}
+
+	return bIsFinish
 }
 
-func doEnter(input interface{}) {
+func (node *BevNodeTerminal) Enter(input interface{}) {
+	node.doEnter(input)
+}
+
+func (node *BevNodeTerminal) Execute(input interface{}, output interface{}) BevRunningStatus {
+	return node.doExecute(input, output)
+}
+
+func (node *BevNodeTerminal) Exit(input interface{}, exitStatus BevRunningStatus) {
+	node.doExit(input, exitStatus)
+}
+
+func (node *BevNodeTerminal) doEnter(input interface{}) {
 
 }
 
-func doExecute(input interface{}, output interface{}) BevRunningStatus {
-	return k_BRS_Finish
+func (node *BevNodeTerminal) doExecute(input interface{}, output interface{}) BevRunningStatus {
+	return StateFinish
 }
 
-func doExit(input interface{}, _ui_ExitID BevRunningStatus) {
+func (node *BevNodeTerminal) doExit(input interface{}, exitStatus BevRunningStatus) {
 
 }
