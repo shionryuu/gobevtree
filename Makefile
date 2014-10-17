@@ -15,7 +15,6 @@ gomfile:
 
 fmt:
 	@gom exec go fmt
-	@gom exec go fmt behavior_tree
 
 test:
 	@gom test
