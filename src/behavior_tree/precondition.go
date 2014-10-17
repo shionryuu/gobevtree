@@ -24,7 +24,7 @@
 package behavior_tree
 
 //
-type BevNodePrecondition interface {
+type IBevNodePrecondition interface {
 	ExternalCondition(input interface{}) bool
 }
 
@@ -54,11 +54,11 @@ func (Cond *BevNodePreconditionFALSE) ExternalCondition(input interface{}) bool 
 
 // return true if both preconditions return true
 type BevNodePreconditionAND struct {
-	first  BevNodePrecondition
-	second BevNodePrecondition
+	first  IBevNodePrecondition
+	second IBevNodePrecondition
 }
 
-func NewBevNodePreconditionAND(First BevNodePrecondition, Second BevNodePrecondition) *BevNodePreconditionAND {
+func NewBevNodePreconditionAND(First IBevNodePrecondition, Second IBevNodePrecondition) *BevNodePreconditionAND {
 	return &BevNodePreconditionAND{first: First, second: Second}
 }
 
@@ -69,11 +69,11 @@ func (Cond *BevNodePreconditionAND) ExternalCondition(input interface{}) bool {
 
 // return true if one of the preconditions return true
 type BevNodePreconditionOR struct {
-	first  BevNodePrecondition
-	second BevNodePrecondition
+	first  IBevNodePrecondition
+	second IBevNodePrecondition
 }
 
-func NewBevNodePreconditionOR(First BevNodePrecondition, Second BevNodePrecondition) *BevNodePreconditionOR {
+func NewBevNodePreconditionOR(First IBevNodePrecondition, Second IBevNodePrecondition) *BevNodePreconditionOR {
 	return &BevNodePreconditionOR{first: First, second: Second}
 }
 
