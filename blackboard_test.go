@@ -42,3 +42,78 @@ func TestBoolValue(t *testing.T) {
 		So(err, ShouldEqual, nil)
 	})
 }
+
+func TestIntValue(t *testing.T) {
+	blackboard := NewBlackboard()
+	Convey("Get unknown value should reutrn error", t, func() {
+		value, err := blackboard.GetValueAsInt(1)
+		So(value, ShouldEqual, 0)
+		So(err, ShouldNotEqual, nil)
+	})
+	Convey("You should get what you set as int", t, func() {
+		blackboard.SetValueAsInt(1, 1)
+		value, err := blackboard.GetValueAsInt(1)
+		So(value, ShouldEqual, 1)
+		So(err, ShouldEqual, nil)
+	})
+}
+
+func TestFloat32Value(t *testing.T) {
+	blackboard := NewBlackboard()
+	Convey("Get unknown value should reutrn error", t, func() {
+		value, err := blackboard.GetValueAsFloat32(1)
+		So(value, ShouldEqual, 0)
+		So(err, ShouldNotEqual, nil)
+	})
+	Convey("You should get what you set as float32", t, func() {
+		blackboard.SetValueAsFloat32(1, 1)
+		value, err := blackboard.GetValueAsFloat32(1)
+		So(value, ShouldEqual, 1)
+		So(err, ShouldEqual, nil)
+	})
+}
+
+func TestFloat64Value(t *testing.T) {
+	blackboard := NewBlackboard()
+	Convey("Get unknown value should reutrn error", t, func() {
+		value, err := blackboard.GetValueAsFloat64(1)
+		So(value, ShouldEqual, 0)
+		So(err, ShouldNotEqual, nil)
+	})
+	Convey("You should get what you set as float64", t, func() {
+		blackboard.SetValueAsFloat64(1, 1)
+		value, err := blackboard.GetValueAsFloat64(1)
+		So(value, ShouldEqual, 1)
+		So(err, ShouldEqual, nil)
+	})
+}
+
+func TestStringValue(t *testing.T) {
+	blackboard := NewBlackboard()
+	Convey("Get unknown value should reutrn error", t, func() {
+		value, err := blackboard.GetValueAsString(1)
+		So(value, ShouldEqual, "")
+		So(err, ShouldNotEqual, nil)
+	})
+	Convey("You should get what you set as string", t, func() {
+		blackboard.SetValueAsString(1, "true")
+		value, err := blackboard.GetValueAsString(1)
+		So(value, ShouldEqual, "true")
+		So(err, ShouldEqual, nil)
+	})
+}
+
+func TestInterfaceValue(t *testing.T) {
+	blackboard := NewBlackboard()
+	Convey("Get unknown value should reutrn error", t, func() {
+		value, err := blackboard.GetValueAsInterface(1)
+		So(value, ShouldEqual, nil)
+		So(err, ShouldNotEqual, nil)
+	})
+	Convey("You should get what you set as interface", t, func() {
+		blackboard.SetValueAsInterface(1, blackboard)
+		value, err := blackboard.GetValueAsInterface(1)
+		So(value, ShouldEqual, blackboard)
+		So(err, ShouldEqual, nil)
+	})
+}
