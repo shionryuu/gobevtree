@@ -30,7 +30,7 @@ import (
 
 func TestBoolValue(t *testing.T) {
 	blackboard := NewBlackboard()
-	Convey("Get unknown value should reutrn error", t, func() {
+	Convey("Get unknown value should return error", t, func() {
 		value, err := blackboard.GetValueAsBool(1)
 		So(value, ShouldEqual, false)
 		So(err, ShouldNotEqual, nil)
@@ -45,7 +45,7 @@ func TestBoolValue(t *testing.T) {
 
 func TestIntValue(t *testing.T) {
 	blackboard := NewBlackboard()
-	Convey("Get unknown value should reutrn error", t, func() {
+	Convey("Get unknown value should return error", t, func() {
 		value, err := blackboard.GetValueAsInt(1)
 		So(value, ShouldEqual, 0)
 		So(err, ShouldNotEqual, nil)
@@ -60,7 +60,7 @@ func TestIntValue(t *testing.T) {
 
 func TestFloat32Value(t *testing.T) {
 	blackboard := NewBlackboard()
-	Convey("Get unknown value should reutrn error", t, func() {
+	Convey("Get unknown value should return error", t, func() {
 		value, err := blackboard.GetValueAsFloat32(1)
 		So(value, ShouldEqual, 0)
 		So(err, ShouldNotEqual, nil)
@@ -75,7 +75,7 @@ func TestFloat32Value(t *testing.T) {
 
 func TestFloat64Value(t *testing.T) {
 	blackboard := NewBlackboard()
-	Convey("Get unknown value should reutrn error", t, func() {
+	Convey("Get unknown value should return error", t, func() {
 		value, err := blackboard.GetValueAsFloat64(1)
 		So(value, ShouldEqual, 0)
 		So(err, ShouldNotEqual, nil)
@@ -90,7 +90,7 @@ func TestFloat64Value(t *testing.T) {
 
 func TestStringValue(t *testing.T) {
 	blackboard := NewBlackboard()
-	Convey("Get unknown value should reutrn error", t, func() {
+	Convey("Get unknown value should return error", t, func() {
 		value, err := blackboard.GetValueAsString(1)
 		So(value, ShouldEqual, "")
 		So(err, ShouldNotEqual, nil)
@@ -105,7 +105,7 @@ func TestStringValue(t *testing.T) {
 
 func TestInterfaceValue(t *testing.T) {
 	blackboard := NewBlackboard()
-	Convey("Get unknown value should reutrn error", t, func() {
+	Convey("Get unknown value should return error", t, func() {
 		value, err := blackboard.GetValueAsInterface(1)
 		So(value, ShouldEqual, nil)
 		So(err, ShouldNotEqual, nil)
