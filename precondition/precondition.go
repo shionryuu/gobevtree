@@ -1,6 +1,6 @@
 /*
  * Description: Behaviour tree in Go.
- * Copyright (c) 2014 ShionRyuu <shionryuu@outlook.com>.
+ * Copyright (c) 2014-2015 ShionRyuu <shionryuu@outlook.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  */
 
-package behavior_tree
+package precondition
 
 //
 type IBevNodePrecondition interface {

@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  */
 
-package behavior_tree
+package node
 
 /*
  * Wrapper for Selector
