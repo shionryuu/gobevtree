@@ -4,5 +4,4 @@ go:
 before_install:
   - go get github.com/mattn/gom
 script:
-  - $HOME/gopath/bin/gom install
-  - $HOME/gopath/bin/gom test
+  - make && make test

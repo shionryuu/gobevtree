@@ -5,7 +5,7 @@ all: compile
 
 
 compile: deps
-	@gom build
+	@gom build ./...
 
 deps: gomfile
 	@test -d _vendor || gom install
@@ -17,7 +17,7 @@ fmt:
 	@gom exec go fmt
 
 test:
-	@gom test
+	@gom test ./...
 
 clean:
 	@gom exec go clean
