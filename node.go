@@ -72,6 +72,7 @@ type IBevNode interface {
 	Evaluate(input interface{}) bool
 	Transition(input interface{})
 	Tick(input interface{}, output interface{}) BevRunningStatus
+	Reconstruct(parentNode IBevNode)
 }
 
 /*
@@ -149,6 +150,14 @@ func (node *BevNode) checkIndex(index int) bool {
 
 func (node *BevNode) getChildNodeCount() int {
 	return node.childNodeCount
+}
+
+func (node *BevNode) Reconstruct(parentNode IBevNode) {
+	node.parentNode = parentNode
+	node.childNodeCount = length(node.childNodeList)
+	for _, childNode := range node.childNodeList {
+		childNode.Resconstruct(node)
+	}
 }
 
 /*
