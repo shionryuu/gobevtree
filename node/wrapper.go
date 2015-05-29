@@ -48,7 +48,7 @@ func (w *BevSelector) Evaluate(input interface{}) bool {
  * Wrapper for Terminal
  */
 type IBevTerminal interface {
-	IBevSelector
+	IBevNode
 	Enter(input interface{})
 	Execute(input interface{}, output interface{}) BevRunningStatus
 	Exit(input interface{}, exitStatus BevRunningStatus)
@@ -108,4 +108,19 @@ func (node *BevTerminal) Tick(input interface{}, output interface{}) BevRunningS
 	}
 
 	return bIsFinish
+}
+
+/*
+ * Wrapper used to reverse the evaluate result of node
+ */
+type BevReverse struct {
+	IBevNode
+}
+
+func NewReverse(node IBevNode) *BevReverse {
+	return &BevReverse{node}
+}
+
+func (w *BevReverse) Evaluate(input interface{}) bool {
+	return !w.IBevNode.Evaluate(input)
 }
