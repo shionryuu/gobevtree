@@ -24,60 +24,60 @@
 package precondition
 
 //
-type IBevNodePrecondition interface {
+type IPrecondition interface {
 	ExternalCondition(input interface{}) bool
 }
 
 // always true precondition
-type BevNodePreconditionTRUE struct {
+type PreconditionTRUE struct {
 }
 
-func NewBevNodePreconditionTRUE() *BevNodePreconditionTRUE {
-	return &BevNodePreconditionTRUE{}
+func NewPreconditionTRUE() *PreconditionTRUE {
+	return &PreconditionTRUE{}
 }
 
-func (Cond *BevNodePreconditionTRUE) ExternalCondition(input interface{}) bool {
+func (Cond *PreconditionTRUE) ExternalCondition(input interface{}) bool {
 	return true
 }
 
 // always false precondition
-type BevNodePreconditionFALSE struct {
+type PreconditionFALSE struct {
 }
 
-func NewBevNodePreconditionFALSE() *BevNodePreconditionFALSE {
-	return &BevNodePreconditionFALSE{}
+func NewPreconditionFALSE() *PreconditionFALSE {
+	return &PreconditionFALSE{}
 }
 
-func (Cond *BevNodePreconditionFALSE) ExternalCondition(input interface{}) bool {
+func (Cond *PreconditionFALSE) ExternalCondition(input interface{}) bool {
 	return false
 }
 
 // return true if both preconditions return true
-type BevNodePreconditionAND struct {
-	first  IBevNodePrecondition
-	second IBevNodePrecondition
+type PreconditionAND struct {
+	first  IPrecondition
+	second IPrecondition
 }
 
-func NewBevNodePreconditionAND(First IBevNodePrecondition, Second IBevNodePrecondition) *BevNodePreconditionAND {
-	return &BevNodePreconditionAND{first: First, second: Second}
+func NewPreconditionAND(First IPrecondition, Second IPrecondition) *PreconditionAND {
+	return &PreconditionAND{first: First, second: Second}
 }
 
-func (Cond *BevNodePreconditionAND) ExternalCondition(input interface{}) bool {
+func (Cond *PreconditionAND) ExternalCondition(input interface{}) bool {
 	return Cond.first.ExternalCondition(input) &&
 		Cond.second.ExternalCondition(input)
 }
 
 // return true if one of the preconditions return true
-type BevNodePreconditionOR struct {
-	first  IBevNodePrecondition
-	second IBevNodePrecondition
+type PreconditionOR struct {
+	first  IPrecondition
+	second IPrecondition
 }
 
-func NewBevNodePreconditionOR(First IBevNodePrecondition, Second IBevNodePrecondition) *BevNodePreconditionOR {
-	return &BevNodePreconditionOR{first: First, second: Second}
+func NewPreconditionOR(First IPrecondition, Second IPrecondition) *PreconditionOR {
+	return &PreconditionOR{first: First, second: Second}
 }
 
-func (Cond *BevNodePreconditionOR) ExternalCondition(input interface{}) bool {
+func (Cond *PreconditionOR) ExternalCondition(input interface{}) bool {
 	return Cond.first.ExternalCondition(input) ||
 		Cond.second.ExternalCondition(input)
 }

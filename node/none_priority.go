@@ -30,15 +30,15 @@ import (
 /*
  *
  */
-type BevNodeNonePrioritySelector struct {
-	*BevNodePrioritySelector
+type NonePrioritySelector struct {
+	*PrioritySelector
 }
 
-func NewBevNodeNonePrioritySelector(parentNode IBevNode, nodePrecondition p.IBevNodePrecondition) *BevNodeNonePrioritySelector {
-	return &BevNodeNonePrioritySelector{NewBevNodePrioritySelector(parentNode, nodePrecondition)}
+func NewNonePrioritySelector(parentNode IBevNode, nodePrecondition p.IPrecondition) *NonePrioritySelector {
+	return &NonePrioritySelector{NewPrioritySelector(parentNode, nodePrecondition)}
 }
 
-func (node *BevNodeNonePrioritySelector) Evaluate(input interface{}) bool {
+func (node *NonePrioritySelector) Evaluate(input interface{}) bool {
 	if node.checkIndex(node.currentSelectIndex) {
 		curNode := node.childNodeList[node.currentSelectIndex]
 		if curNode.Evaluate(input) {

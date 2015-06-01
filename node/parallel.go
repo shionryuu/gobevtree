@@ -30,15 +30,15 @@ import (
 /*
  *
  */
-type BevNodeParallel struct {
+type ParallelSelector struct {
 	*BevNode
 }
 
-func NewBevNodeParallel(parentNode IBevNode, nodePrecondition p.IBevNodePrecondition) *BevNodeParallel {
-	return &BevNodeParallel{NewBevNode(parentNode, nodePrecondition)}
+func NewParallelSelector(parentNode IBevNode, nodePrecondition p.IPrecondition) *ParallelSelector {
+	return &ParallelSelector{NewBevNode(parentNode, nodePrecondition)}
 }
 
-func (node *BevNodeParallel) Evaluate(input interface{}) bool {
+func (node *ParallelSelector) Evaluate(input interface{}) bool {
 	for i := 0; i < node.childNodeCount; i++ {
 		if !node.childNodeList[i].Evaluate(input) {
 			return false
@@ -47,13 +47,13 @@ func (node *BevNodeParallel) Evaluate(input interface{}) bool {
 	return true
 }
 
-func (node *BevNodeParallel) Transition(input interface{}) {
+func (node *ParallelSelector) Transition(input interface{}) {
 	for i := 0; i < node.childNodeCount; i++ {
 		node.childNodeList[i].Transition(input)
 	}
 }
 
-func (node *BevNodeParallel) Tick(input interface{}, output interface{}) BevRunningStatus {
+func (node *ParallelSelector) Tick(input interface{}, output interface{}) BevRunningStatus {
 	for i := 0; i < node.childNodeCount; i++ {
 		if node.childNodeList[i].Tick(input, output) != StateFinish {
 			return StateExecuting

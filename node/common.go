@@ -63,8 +63,8 @@ type TerminalNodeStaus int
  */
 type IBevNode interface {
 	AddChildNode(childNode IBevNode) *BevNode
-	GetNodePrecondition() p.IBevNodePrecondition
-	SetNodePrecondition(nodePrecondition p.IBevNodePrecondition) *BevNode
+	GetNodePrecondition() p.IPrecondition
+	SetNodePrecondition(nodePrecondition p.IPrecondition) *BevNode
 	GetDebugName() string
 	SetDebugName(debugName string) *BevNode
 	GetLastActiveNode() IBevNode

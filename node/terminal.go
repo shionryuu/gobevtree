@@ -30,20 +30,20 @@ import (
 /*
  *
  */
-type BevNodeTerminal struct {
+type TerminalNode struct {
 	*BevNode
 }
 
-func NewBevNodeTerminal(parentNode IBevNode, nodePrecondition p.IBevNodePrecondition) *BevNodeTerminal {
-	return &BevNodeTerminal{NewBevNode(parentNode, nodePrecondition)}
+func NewTerminalNode(parentNode IBevNode, nodePrecondition p.IPrecondition) *TerminalNode {
+	return &TerminalNode{NewBevNode(parentNode, nodePrecondition)}
 }
 
-func (node *BevNodeTerminal) Enter(input interface{}) {
+func (node *TerminalNode) Enter(input interface{}) {
 }
 
-func (node *BevNodeTerminal) Execute(input interface{}, output interface{}) BevRunningStatus {
+func (node *TerminalNode) Execute(input interface{}, output interface{}) BevRunningStatus {
 	return StateFinish
 }
 
-func (node *BevNodeTerminal) Exit(input interface{}, exitStatus BevRunningStatus) {
+func (node *TerminalNode) Exit(input interface{}, exitStatus BevRunningStatus) {
 }

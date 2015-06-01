@@ -31,7 +31,7 @@ import (
  * BevNode
  */
 type BevNode struct {
-	nodePrecondition p.IBevNodePrecondition
+	nodePrecondition p.IPrecondition
 	parentNode       IBevNode
 	activeNode       IBevNode
 	lastActiveNode   IBevNode
@@ -40,7 +40,7 @@ type BevNode struct {
 	childNodeList    [ConstMaxChildNodeCnt]IBevNode
 }
 
-func NewBevNode(parentNode IBevNode, nodePrecondition p.IBevNodePrecondition) *BevNode {
+func NewBevNode(parentNode IBevNode, nodePrecondition p.IPrecondition) *BevNode {
 	return &BevNode{nodePrecondition: nodePrecondition, parentNode: parentNode}
 }
 
@@ -54,12 +54,12 @@ func (node *BevNode) AddChildNode(childNode IBevNode) *BevNode {
 	return node
 }
 
-func (node *BevNode) SetNodePrecondition(nodePrecondition p.IBevNodePrecondition) *BevNode {
+func (node *BevNode) SetNodePrecondition(nodePrecondition p.IPrecondition) *BevNode {
 	node.nodePrecondition = nodePrecondition
 	return node
 }
 
-func (node *BevNode) GetNodePrecondition() p.IBevNodePrecondition {
+func (node *BevNode) GetNodePrecondition() p.IPrecondition {
 	return node.nodePrecondition
 }
 

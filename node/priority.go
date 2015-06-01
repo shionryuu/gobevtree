@@ -30,17 +30,17 @@ import (
 /*
  *
  */
-type BevNodePrioritySelector struct {
+type PrioritySelector struct {
 	*BevNode
 	currentSelectIndex int
 	lastSelectIndex    int
 }
 
-func NewBevNodePrioritySelector(parentNode IBevNode, nodePrecondition p.IBevNodePrecondition) *BevNodePrioritySelector {
-	return &BevNodePrioritySelector{NewBevNode(parentNode, nodePrecondition), ConstInvalidChildNodeIndex, ConstInvalidChildNodeIndex}
+func NewPrioritySelector(parentNode IBevNode, nodePrecondition p.IPrecondition) *PrioritySelector {
+	return &PrioritySelector{NewBevNode(parentNode, nodePrecondition), ConstInvalidChildNodeIndex, ConstInvalidChildNodeIndex}
 }
 
-func (node *BevNodePrioritySelector) Evaluate(input interface{}) bool {
+func (node *PrioritySelector) Evaluate(input interface{}) bool {
 	node.currentSelectIndex = ConstInvalidChildNodeIndex
 	for i := 0; i < node.childNodeCount; i++ {
 		if node.childNodeList[i].Evaluate(input) {
@@ -51,14 +51,14 @@ func (node *BevNodePrioritySelector) Evaluate(input interface{}) bool {
 	return false
 }
 
-func (node *BevNodePrioritySelector) Transition(input interface{}) {
+func (node *PrioritySelector) Transition(input interface{}) {
 	if node.checkIndex(node.lastSelectIndex) {
 		node.childNodeList[node.lastSelectIndex].Transition(input)
 	}
 	node.lastSelectIndex = ConstInvalidChildNodeIndex
 }
 
-func (node *BevNodePrioritySelector) Tick(input interface{}, output interface{}) BevRunningStatus {
+func (node *PrioritySelector) Tick(input interface{}, output interface{}) BevRunningStatus {
 	var isFinish BevRunningStatus = StateFinish
 
 	if node.checkIndex(node.currentSelectIndex) {

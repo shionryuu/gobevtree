@@ -30,16 +30,16 @@ import (
 /*
  *
  */
-type BevNodeSequence struct {
+type SequenceSelector struct {
 	*BevNode
 	currentSelectIndex int
 }
 
-func NewBevNodeSequence(parentNode IBevNode, nodePrecondition p.IBevNodePrecondition) *BevNodeSequence {
-	return &BevNodeSequence{NewBevNode(parentNode, nodePrecondition), ConstInvalidChildNodeIndex}
+func NewSequenceSelector(parentNode IBevNode, nodePrecondition p.IPrecondition) *SequenceSelector {
+	return &SequenceSelector{NewBevNode(parentNode, nodePrecondition), ConstInvalidChildNodeIndex}
 }
 
-func (node *BevNodeSequence) Evaluate(input interface{}) bool {
+func (node *SequenceSelector) Evaluate(input interface{}) bool {
 	Index := node.currentSelectIndex
 	if !node.checkIndex(node.currentSelectIndex) && node.checkIndex(0) {
 		Index = 0
@@ -50,14 +50,14 @@ func (node *BevNodeSequence) Evaluate(input interface{}) bool {
 	return false
 }
 
-func (node *BevNodeSequence) Transition(input interface{}) {
+func (node *SequenceSelector) Transition(input interface{}) {
 	if node.checkIndex(node.currentSelectIndex) {
 		node.childNodeList[node.currentSelectIndex].Transition(input)
 	}
 	node.currentSelectIndex = ConstInvalidChildNodeIndex
 }
 
-func (node *BevNodeSequence) Tick(input interface{}, output interface{}) BevRunningStatus {
+func (node *SequenceSelector) Tick(input interface{}, output interface{}) BevRunningStatus {
 	var bIsFinish BevRunningStatus = StateFinish
 
 	if !node.checkIndex(node.currentSelectIndex) && node.checkIndex(0) {

@@ -45,13 +45,13 @@ func TestPrecondition(t *testing.T) {
 
 func TestTrueFalseCond(t *testing.T) {
 	Convey("Alway true precondition", t, func() {
-		cond := NewBevNodePreconditionTRUE()
+		cond := NewPreconditionTRUE()
 		Convey("It should always be true", func() {
 			So(cond.ExternalCondition(1), ShouldEqual, true)
 		})
 	})
 	Convey("Alway false precondition", t, func() {
-		cond := NewBevNodePreconditionFALSE()
+		cond := NewPreconditionFALSE()
 		Convey("It should always be false", func() {
 			So(cond.ExternalCondition(1), ShouldEqual, false)
 		})
@@ -59,41 +59,41 @@ func TestTrueFalseCond(t *testing.T) {
 }
 
 func TestAndOrCond(t *testing.T) {
-	trueCond := NewBevNodePreconditionTRUE()
-	falseCond := NewBevNodePreconditionFALSE()
+	trueCond := NewPreconditionTRUE()
+	falseCond := NewPreconditionFALSE()
 
 	Convey("And precondition", t, func() {
 		Convey("Return false if one of the cond return false", func() {
-			falseAndFalseCond := NewBevNodePreconditionAND(falseCond, falseCond)
+			falseAndFalseCond := NewPreconditionAND(falseCond, falseCond)
 			So(falseAndFalseCond.ExternalCondition(1), ShouldEqual, false)
 
-			trueAndFalseCond := NewBevNodePreconditionAND(trueCond, falseCond)
+			trueAndFalseCond := NewPreconditionAND(trueCond, falseCond)
 			So(trueAndFalseCond.ExternalCondition(1), ShouldEqual, false)
 
-			falseAndTrueCond := NewBevNodePreconditionAND(falseCond, trueCond)
+			falseAndTrueCond := NewPreconditionAND(falseCond, trueCond)
 			So(falseAndTrueCond.ExternalCondition(1), ShouldEqual, false)
 		})
 
 		Convey("Return true if both of the cond return true", func() {
-			trueAndTrueCond := NewBevNodePreconditionAND(trueCond, trueCond)
+			trueAndTrueCond := NewPreconditionAND(trueCond, trueCond)
 			So(trueAndTrueCond.ExternalCondition(1), ShouldEqual, true)
 		})
 	})
 
 	Convey("Or precondition", t, func() {
 		Convey("Return true if one of the cond return true", func() {
-			trueOrTrueCond := NewBevNodePreconditionOR(trueCond, trueCond)
+			trueOrTrueCond := NewPreconditionOR(trueCond, trueCond)
 			So(trueOrTrueCond.ExternalCondition(1), ShouldEqual, true)
 
-			trueOrFalseCond := NewBevNodePreconditionOR(trueCond, falseCond)
+			trueOrFalseCond := NewPreconditionOR(trueCond, falseCond)
 			So(trueOrFalseCond.ExternalCondition(1), ShouldEqual, true)
 
-			falseOrTrueCond := NewBevNodePreconditionOR(falseCond, trueCond)
+			falseOrTrueCond := NewPreconditionOR(falseCond, trueCond)
 			So(falseOrTrueCond.ExternalCondition(1), ShouldEqual, true)
 		})
 
 		Convey("Return false if both of the cond return false", func() {
-			falseOrFalseCond := NewBevNodePreconditionOR(falseCond, falseCond)
+			falseOrFalseCond := NewPreconditionOR(falseCond, falseCond)
 			So(falseOrFalseCond.ExternalCondition(1), ShouldEqual, false)
 		})
 	})

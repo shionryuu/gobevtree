@@ -31,15 +31,15 @@ import (
 /*
  *
  */
-type BevNodeRandomSelector struct {
-	*BevNodePrioritySelector
+type RandomSelector struct {
+	*PrioritySelector
 }
 
-func NewBevNodeRandomSelector(parentNode IBevNode, nodePrecondition p.IBevNodePrecondition) *BevNodeRandomSelector {
-	return &BevNodeRandomSelector{NewBevNodePrioritySelector(parentNode, nodePrecondition)}
+func NewRandomSelector(parentNode IBevNode, nodePrecondition p.IPrecondition) *RandomSelector {
+	return &RandomSelector{NewPrioritySelector(parentNode, nodePrecondition)}
 }
 
-func (node *BevNodeRandomSelector) Evaluate(input interface{}) bool {
+func (node *RandomSelector) Evaluate(input interface{}) bool {
 	if node.childNodeCount >= 1 {
 		randomIndex := rand.Intn(node.childNodeCount)
 		if node.childNodeList[randomIndex].Evaluate(input) == true {

@@ -30,17 +30,17 @@ import (
 /*
  *
  */
-type BevNodeLoop struct {
+type LoopSelector struct {
 	*BevNode
 	loopCount    int
 	currentCount int
 }
 
-func NewBevNodeLoop(parentNode IBevNode, nodePrecondition p.IBevNodePrecondition, totalLoopCount int) *BevNodeLoop {
-	return &BevNodeLoop{NewBevNode(parentNode, nodePrecondition), totalLoopCount, 0}
+func NewLoopSelector(parentNode IBevNode, nodePrecondition p.IPrecondition, totalLoopCount int) *LoopSelector {
+	return &LoopSelector{NewBevNode(parentNode, nodePrecondition), totalLoopCount, 0}
 }
 
-func (node *BevNodeLoop) Evaluate(input interface{}) bool {
+func (node *LoopSelector) Evaluate(input interface{}) bool {
 	checkLoop := node.loopCount != ConstInfiniteLoop && node.currentCount > node.loopCount
 
 	if !checkLoop {
@@ -52,13 +52,13 @@ func (node *BevNodeLoop) Evaluate(input interface{}) bool {
 	}
 }
 
-func (node *BevNodeLoop) Transition(input interface{}) {
+func (node *LoopSelector) Transition(input interface{}) {
 	if node.checkIndex(0) {
 		node.childNodeList[0].Transition(input)
 	}
 }
 
-func (node *BevNodeLoop) Tick(input interface{}, output interface{}) BevRunningStatus {
+func (node *LoopSelector) Tick(input interface{}, output interface{}) BevRunningStatus {
 	if node.checkIndex(0) && node.childNodeList[0].Tick(input, output) == StateFinish {
 		node.currentCount = node.currentCount + 1
 	}

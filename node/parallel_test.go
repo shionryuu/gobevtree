@@ -30,13 +30,13 @@ import (
 )
 
 type A struct {
-	*BevNodeTerminal
+	*TerminalNode
 	v int
 }
 
-func NewA(parentNode IBevNode, cond IBevNodePrecondition, v int) *A {
+func NewA(parentNode IBevNode, cond IPrecondition, v int) *A {
 	return &A{
-		NewBevNodeTerminal(parentNode, cond),
+		NewTerminalNode(parentNode, cond),
 		v,
 	}
 }
@@ -56,9 +56,9 @@ func (node *A) Exit(input interface{}, exitStatus BevRunningStatus) {
 
 func TestParallel(t *testing.T) {
 	Convey("Parallel will succ if all of its children succs", t, func() {
-		selector := NewSelector(NewBevNodeParallel(nil, NewBevNodePreconditionTRUE()))
-		selector.AddChildNode(NewTerminal(NewA(selector, NewBevNodePreconditionTRUE(), 1)))
-		selector.AddChildNode(NewTerminal(NewA(selector, NewBevNodePreconditionTRUE(), 10)))
+		selector := NewSelector(NewParallelSelector(nil, NewPreconditionTRUE()))
+		selector.AddChildNode(NewTerminal(NewA(selector, NewPreconditionTRUE(), 1)))
+		selector.AddChildNode(NewTerminal(NewA(selector, NewPreconditionTRUE(), 10)))
 		output := 0
 		if selector.Evaluate(nil) {
 			selector.Tick(nil, &output)
@@ -67,9 +67,9 @@ func TestParallel(t *testing.T) {
 	})
 
 	Convey("Parallel will fail if one of its children fails", t, func() {
-		selector := NewSelector(NewBevNodeParallel(nil, NewBevNodePreconditionTRUE()))
-		selector.AddChildNode(NewTerminal(NewA(selector, NewBevNodePreconditionTRUE(), 1)))
-		selector.AddChildNode(NewTerminal(NewA(selector, NewBevNodePreconditionFALSE(), 10)))
+		selector := NewSelector(NewParallelSelector(nil, NewPreconditionTRUE()))
+		selector.AddChildNode(NewTerminal(NewA(selector, NewPreconditionTRUE(), 1)))
+		selector.AddChildNode(NewTerminal(NewA(selector, NewPreconditionFALSE(), 10)))
 		output := 0
 		if selector.Evaluate(nil) {
 			selector.Tick(nil, &output)
