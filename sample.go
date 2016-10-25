@@ -106,10 +106,13 @@ func testSequenceSelector() {
 	outboard := btboard.NewBlackboard()
 
 	tree := btnode.NewSequenceSelector(nil, nil)
+	tree.SetDebugName("seq")
 	node1 := &TestTerNode{btnode.NewTerminalNode(nil, nil), "node1"}
 	node2 := &TestTerNode{btnode.NewTerminalNode(nil, nil), "node2"}
 	wrap1 := btnode.NewTerminal(node1)
+	wrap1.SetDebugName("w1")
 	wrap2 := btnode.NewTerminal(node2)
+	wrap2.SetDebugName("w2")
 	tree.AddChildNode(wrap1)
 	tree.AddChildNode(wrap2)
 	renderTree(tree, 2, inboard, outboard, 0)
@@ -167,7 +170,7 @@ func testRandomSelector() {
 
 }
 func renderTree(tree btnode.IBevNode, count int, inboard *btboard.BlackBoard, outboard *btboard.BlackBoard, delayTime int) {
-
+	btnode.PrintbevTree(tree, 0)
 	for i := 0; i < count; i++ {
 		if tree.Evaluate(inboard) {
 			tree.Tick(inboard, outboard)
@@ -225,7 +228,7 @@ func testSimple() {
 
 	randn.AddChildNode(wrap21)
 	randn.AddChildNode(wrap22)
-
+	btnode.PrintbevTree(tree, 0)
 	//renderTree
 	for i := 0; i < 20; i++ {
 		//one frame
