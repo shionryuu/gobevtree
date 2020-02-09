@@ -24,6 +24,9 @@
 package node
 
 import (
+	"fmt"
+	"reflect"
+
 	p "github.com/ShionRyuu/gobevtree/precondition"
 )
 
@@ -73,4 +76,20 @@ type IBevNode interface {
 	Transition(input interface{})
 	Tick(input interface{}, output interface{}) BevRunningStatus
 	Reconstruct(parentNode IBevNode)
+	PrintChild(blk int, callback ChildrenJobFunc)
+}
+
+func PrintbevTree(root IBevNode, blk int) {
+
+	for i := 0; i < blk; i++ {
+		fmt.Print("    ") //缩进
+	}
+	if root.GetNodePrecondition() != nil {
+		fmt.Println("|—", "<", reflect.TypeOf(root.GetNodePrecondition()), ":", root.GetNodePrecondition(), ">", reflect.TypeOf(root), ":", root.GetDebugName()) //打印"|—<id>"形式
+
+	} else {
+		fmt.Println("|—", reflect.TypeOf(root), ":", root.GetDebugName()) //打印"|—<id>"形式
+
+	}
+	root.PrintChild(blk, PrintbevTree)
 }

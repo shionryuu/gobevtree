@@ -24,6 +24,8 @@
 package node
 
 import (
+	"fmt"
+
 	p "github.com/ShionRyuu/gobevtree/precondition"
 )
 
@@ -42,6 +44,19 @@ type BevNode struct {
 
 func NewBevNode(parentNode IBevNode, nodePrecondition p.IPrecondition) *BevNode {
 	return &BevNode{nodePrecondition: nodePrecondition, parentNode: parentNode}
+}
+
+type ChildrenJobFunc func(v IBevNode, blk int)
+
+func (root *BevNode) PrintChild(blk int, dofun ChildrenJobFunc) {
+	for i := 0; i < root.childNodeCount; i++ {
+		v := root.childNodeList[i]
+		if v == nil {
+			fmt.Print("nil!!")
+			continue
+		}
+		dofun(v, blk+1) //打印子树，累加缩进次数
+	}
 }
 
 func (node *BevNode) AddChildNode(childNode IBevNode) *BevNode {
