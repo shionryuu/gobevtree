@@ -5,20 +5,14 @@ all: compile
 
 
 compile: deps
-	@gom build ./...
-
-deps: gomfile
-	@test -d _vendor || gom install
-
-gomfile:
-	@test -f Gomfile || gom gen	
+	@go build
 
 fmt:
-	@gom exec go fmt
+	@go fmt
 
 test:
-	@gom test ./...
+	@go test ./...
 
 clean:
-	@gom exec go clean
+	@go clean
 	@rm -rf _vendor
